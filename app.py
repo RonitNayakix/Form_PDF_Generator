@@ -110,10 +110,6 @@ def render_docx_preview(docx_path):
             border-radius: 4px;
         }}
     </style>
-
-    <div class="doc-preview">
-        {safe_text}
-    </div>
     """
 
     st.markdown(html_preview, unsafe_allow_html=True)
