@@ -53,11 +53,29 @@ def generate_pdf(content, output_path):
 
     c.save()
     
-def render_docx_preview(docx_path):
+def extract_docx_full_text(docx_path):
     doc = Document(docx_path)
-    text = "\n".join(p.text for p in doc.paragraphs)
+    content = []
 
-    # Highlight placeholders
+    # Paragraphs
+    for p in doc.paragraphs:
+        content.append(p.text)
+
+    # Tables
+    for table in doc.tables:
+        content.append("\n--- TABLE ---")
+        for row in table.rows:
+            row_text = [cell.text.strip() for cell in row.cells]
+            content.append(" | ".join(row_text))
+        content.append("--- END TABLE ---\n")
+
+    return "\n".join(content)
+
+
+def render_docx_preview(docx_path):
+    text = extract_docx_full_text(docx_path)
+
+    # Highlight placeholders {{ }}
     text = re.sub(
         r"{{(.*?)}}",
         r"<span style='color:#d63384;font-weight:600;'>{{\1}}</span>",
@@ -66,23 +84,24 @@ def render_docx_preview(docx_path):
 
     html = f"""
     <div style="
-        background:#ffffff;
-        padding:25px;
-        width:100%;
-        max-width:700px;
-        height:400px;
+        background:#fff;
+        padding:30px;
+        max-width:750px;
+        height:450px;
         overflow-y:auto;
-        border-radius:8px;
-        box-shadow:0 8px 20px rgba(0,0,0,0.08);
-        font-family: 'Times New Roman', serif;
+        border-radius:10px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.1);
+        font-family:'Times New Roman', serif;
+        font-size:15px;
         line-height:1.6;
         white-space:pre-wrap;
-        border:1px solid #eee;
+        border:1px solid #ddd;
     ">
         {text}
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
+
 # ======================================================
 # UI
 # ======================================================
@@ -111,6 +130,7 @@ with tabs[1]:
             st.code(", ".join(fields))
             st.markdown("### 🖼 Template Preview")
             render_docx_preview(ACTIVE_TEMPLATE)
+
 
             with open(ACTIVE_TEMPLATE, "rb") as f:
                 st.download_button(
