@@ -65,41 +65,42 @@ def extract_docx_full_text(docx_path):
     for table in doc.tables:
         content.append("")
         for row in table.rows:
-            content.append(" | ".join(cell.text.strip() for cell in row.cells))
+            content.append(" | ".join(cell.text for cell in row.cells))
         content.append("")
 
     return "\n".join(content)
 
+
 def render_docx_preview(docx_path):
     raw_text = extract_docx_full_text(docx_path)
 
-    # Escape HTML safely
     safe_text = html.escape(raw_text)
 
-    # Highlight placeholders
     safe_text = re.sub(
         r"\{\{(.*?)\}\}",
         r"<span class='placeholder'>{{\1}}</span>",
         safe_text
     )
 
-    html_preview = f"""
+    preview_html = f"""
     <style>
+        body {{
+            background: transparent;
+        }}
         .doc-preview {{
             background: #ffffff;
             color: #000000;
-            padding: 30px;
-            max-width: 800px;
-            height: 450px;
+            padding: 32px;
+            max-width: 820px;
+            height: 460px;
             overflow-y: auto;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid #ddd;
             font-family: "Times New Roman", serif;
             font-size: 15px;
             line-height: 1.7;
             white-space: pre-wrap;
         }}
-
         .placeholder {{
             background: #fff3cd;
             color: #000000;
@@ -110,11 +111,13 @@ def render_docx_preview(docx_path):
     </style>
 
     <div class="doc-preview">
-        {safe_text}
+    {safe_text}
     </div>
     """
 
-    components.html(html_preview, height=480)
+    # 🔥 THIS LINE IS CRITICAL
+    components.html(preview_html, height=480, scrolling=True)
+
 
 
 # ======================================================
@@ -145,7 +148,6 @@ with tabs[1]:
             st.code(", ".join(fields))
             st.markdown("### 🖼 Template Preview")
             render_docx_preview(ACTIVE_TEMPLATE)
-
 
             with open(ACTIVE_TEMPLATE, "rb") as f:
                 st.download_button(
