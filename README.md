@@ -52,13 +52,13 @@ form_pdf_generator/
 
 # 🛠️ Tech Stack
 
-# Layer           ||	Technology
-UI	            ||  Streamlit
-DOCX Parsing    ||  python-docx
-PDF Generation  ||  reportlab
-Backend Logic	  ||  Python
-Hosting	        ||  Streamlit Cloud
-Version Control || 	GitHub
+# Layer - Technology
+1. UI	- Streamlit
+2. DOCX Parsing - python-docx
+3. PDF Generation - reportlab
+4. Backend Logic - Python
+5. Hosting - Streamlit Cloud
+6. Version Control - GitHub
 
 # 📦 Installation (Local Setup)
 
@@ -80,13 +80,13 @@ streamlit run app.py
 
 Use placeholders like:
 
-Dear {{Name}},
+"""Dear {{Name}},
 
 Your loan amount is {{Amount}}.
 City: {{City}}
 
 Regards,
-Company Name
+Company Name"""
 
 
 ⚠️ Placeholder names must match exactly (case-sensitive).
