@@ -1,13 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
+
 import os
 import re
-import tempfile
-import html
+import html   # ✅ THIS MUST BE HERE
 
 from docx import Document
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+
 
 
 # ======================================================
