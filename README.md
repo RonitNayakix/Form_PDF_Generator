@@ -80,15 +80,15 @@ streamlit run app.py
 
 Use placeholders like:
 
-"""Dear {{Name}},
+```text
+Dear {{Name}},
 
 Your loan amount is {{Amount}}.
 City: {{City}}
 
 Regards,
-Company Name"""
-
-
+Company Name
+```
 ⚠️ Placeholder names must match exactly (case-sensitive).
 
 # 🔐 Admin Access
@@ -101,11 +101,11 @@ Company Name"""
 3. Password can be configured inside app.py
 
 # 🧪 Sample Data Flow
-# Field    ||	Example
-  Name	   || Ramesh
-  City	   || Bhubaneswar
-  Amount	 || 500000
-  PDF Name ||	AFPL-01
+# Field - Example
+1. Name - Ramesh
+2. City - Bhubaneswar
+3. Amount - 500000
+4. PDF Name - AFPL-01
 
 # 📄 Output:
 
