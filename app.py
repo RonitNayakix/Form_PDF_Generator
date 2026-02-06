@@ -52,7 +52,37 @@ def generate_pdf(content, output_path):
             y = height - 50
 
     c.save()
+    
+def render_docx_preview(docx_path):
+    doc = Document(docx_path)
+    text = "\n".join(p.text for p in doc.paragraphs)
 
+    # Highlight placeholders
+    text = re.sub(
+        r"{{(.*?)}}",
+        r"<span style='color:#d63384;font-weight:600;'>{{\1}}</span>",
+        text
+    )
+
+    html = f"""
+    <div style="
+        background:#ffffff;
+        padding:25px;
+        width:100%;
+        max-width:700px;
+        height:400px;
+        overflow-y:auto;
+        border-radius:8px;
+        box-shadow:0 8px 20px rgba(0,0,0,0.08);
+        font-family: 'Times New Roman', serif;
+        line-height:1.6;
+        white-space:pre-wrap;
+        border:1px solid #eee;
+    ">
+        {text}
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
 # ======================================================
 # UI
 # ======================================================
@@ -79,6 +109,8 @@ with tabs[1]:
             st.write("**File:** active_template.docx")
             st.write("**Extracted Fields:**")
             st.code(", ".join(fields))
+            st.markdown("### 🖼 Template Preview")
+            render_docx_preview(ACTIVE_TEMPLATE)
 
             with open(ACTIVE_TEMPLATE, "rb") as f:
                 st.download_button(
