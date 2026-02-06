@@ -3,7 +3,6 @@ import streamlit.components.v1 as components
 
 import os
 import re
-import html   # ✅ THIS MUST BE HERE
 
 from docx import Document
 from reportlab.lib.pagesizes import A4
@@ -73,54 +72,35 @@ def extract_docx_full_text(docx_path):
 
     return "\n".join(content)
 
-
 def render_docx_preview(docx_path):
     raw_text = extract_docx_full_text(docx_path)
 
-    safe_text = html.escape(raw_text)
-
-    safe_text = re.sub(
+    # Highlight placeholders {{Field}}
+    highlighted = re.sub(
         r"\{\{(.*?)\}\}",
-        r"<span class='placeholder'>{{\1}}</span>",
-        safe_text
+        r"<strong style='color:black;'>{{\1}}</strong>",
+        raw_text
     )
 
-    preview_html = f"""
-    <style>
-        body {{
-            background: transparent;
-        }}
-        .doc-preview {{
-            background: #ffffff;
-            color: #000000;
-            padding: 32px;
-            max-width: 820px;
-            height: 460px;
-            overflow-y: auto;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            font-family: "Times New Roman", serif;
-            font-size: 15px;
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }}
-        .placeholder {{
-            background: #fff3cd;
-            color: #000000;
-            font-weight: 700;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }}
-    </style>
+    # Convert newlines to <br>
+    highlighted = highlighted.replace("\n", "<br>")
 
-    <div class="doc-preview">
-    {safe_text}
-    </div>
-    """
-
-    # 🔥 THIS LINE IS CRITICAL
-    components.html(preview_html, height=480, scrolling=True)
-
+    st.markdown(
+        f"""
+        <div style="
+            background-color:white;
+            color:black;
+            padding:16px;
+            border-radius:8px;
+            border:1px solid #ddd;
+            font-family:Arial, sans-serif;
+            line-height:1.6;
+        ">
+            {highlighted}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # ======================================================
