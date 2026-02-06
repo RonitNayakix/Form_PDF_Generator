@@ -103,7 +103,7 @@ with tabs[1]:
                 f.write(uploaded_docx.read())
 
             st.success("✅ Template saved permanently")
-            st.experimental_rerun()
+            st.rerun()
 
     else:
         st.warning("Admin access only")
