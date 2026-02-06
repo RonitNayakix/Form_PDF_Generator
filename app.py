@@ -110,7 +110,6 @@ def render_docx_preview(docx_path):
             border-radius: 4px;
         }}
     </style>
-    <div class="doc-preview">
     </div>
     """
 
