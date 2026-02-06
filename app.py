@@ -31,6 +31,11 @@ def replace_placeholders(text, data):
     return text
 
 
+def docx_to_text(docx_path):
+    doc = Document(docx_path)
+    return "\n".join(p.text for p in doc.paragraphs)
+
+
 def generate_pdf(content, output_path):
     c = canvas.Canvas(output_path, pagesize=A4)
     width, height = A4
@@ -44,11 +49,6 @@ def generate_pdf(content, output_path):
             y = height - 50
 
     c.save()
-
-
-def docx_to_text(docx_path):
-    doc = Document(docx_path)
-    return "\n".join(p.text for p in doc.paragraphs)
 
 # ======================================================
 # UI
@@ -77,11 +77,11 @@ with tabs[1]:
 
             fields = extract_placeholders_from_docx(TEMPLATE_PATH)
 
-            st.success("Template uploaded successfully!")
-            st.write("📌 Extracted Fields:")
+            st.success("✅ Template uploaded successfully")
+            st.write("📌 Extracted Fields (for user form):")
             st.code(", ".join(fields))
 
-            st.info("⚠️ Required: include {{PDFName}} for output filename")
+            st.info("ℹ️ PDF file name will be entered by user separately")
     else:
         st.warning("Admin access only")
 
@@ -89,12 +89,16 @@ with tabs[1]:
 # USER TAB
 # ======================================================
 with tabs[0]:
-    st.subheader("👤 User Form")
+    st.subheader("👤 Fill Details")
 
     if not os.path.exists(TEMPLATE_PATH):
         st.warning("Admin has not uploaded any template yet.")
     else:
         fields = extract_placeholders_from_docx(TEMPLATE_PATH)
+
+        # 🔹 PDF NAME INPUT (ALWAYS VISIBLE)
+        pdf_name = st.text_input("📄 PDF File Name (without .pdf)")
+
         user_data = {}
 
         with st.form("user_form"):
@@ -104,16 +108,14 @@ with tabs[0]:
             submitted = st.form_submit_button("🚀 Generate PDF")
 
         if submitted:
-            if "PDFName" not in user_data or not user_data["PDFName"]:
-                st.error("❌ PDFName field is required")
+            if not pdf_name.strip():
+                st.error("❌ Please enter PDF file name")
             else:
                 with tempfile.TemporaryDirectory() as tmpdir:
                     text = docx_to_text(TEMPLATE_PATH)
                     final_text = replace_placeholders(text, user_data)
 
-                    pdf_path = os.path.join(
-                        tmpdir, f"{user_data['PDFName']}.pdf"
-                    )
+                    pdf_path = os.path.join(tmpdir, f"{pdf_name}.pdf")
 
                     generate_pdf(final_text, pdf_path)
 
@@ -121,7 +123,7 @@ with tabs[0]:
                         st.download_button(
                             "⬇️ Download PDF",
                             f,
-                            file_name=f"{user_data['PDFName']}.pdf",
+                            file_name=f"{pdf_name}.pdf",
                             mime="application/pdf"
                         )
 
