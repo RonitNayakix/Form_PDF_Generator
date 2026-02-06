@@ -5,7 +5,7 @@ import tempfile
 from docx import Document
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-import html
+import streamlit.components.v1 as components
 
 
 # ======================================================
@@ -70,14 +70,13 @@ def extract_docx_full_text(docx_path):
 
     return "\n".join(content)
 
-
 def render_docx_preview(docx_path):
     raw_text = extract_docx_full_text(docx_path)
 
-    # Escape HTML completely (prevents </div>, <span>, etc.)
+    # Escape HTML safely
     safe_text = html.escape(raw_text)
 
-    # Highlight placeholders AFTER escaping
+    # Highlight placeholders
     safe_text = re.sub(
         r"\{\{(.*?)\}\}",
         r"<span class='placeholder'>{{\1}}</span>",
@@ -99,23 +98,24 @@ def render_docx_preview(docx_path):
             font-size: 15px;
             line-height: 1.7;
             white-space: pre-wrap;
-            user-select: text;
         }}
 
         .placeholder {{
+            background: #fff3cd;
             color: #000000;
             font-weight: 700;
-            background: #fff3cd;
             padding: 2px 4px;
             border-radius: 4px;
         }}
     </style>
+
     <div class="doc-preview">
         {safe_text}
     </div>
     """
 
-    st.markdown(html_preview, unsafe_allow_html=True)
+    components.html(html_preview, height=480)
+
 
 # ======================================================
 # UI
