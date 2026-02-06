@@ -5,6 +5,8 @@ import tempfile
 from docx import Document
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+import html
+
 
 # ======================================================
 # CONFIG
@@ -57,50 +59,64 @@ def extract_docx_full_text(docx_path):
     doc = Document(docx_path)
     content = []
 
-    # Paragraphs
     for p in doc.paragraphs:
         content.append(p.text)
 
-    # Tables
     for table in doc.tables:
-        content.append("\n--- TABLE ---")
+        content.append("")
         for row in table.rows:
-            row_text = [cell.text.strip() for cell in row.cells]
-            content.append(" | ".join(row_text))
-        content.append("--- END TABLE ---\n")
+            content.append(" | ".join(cell.text.strip() for cell in row.cells))
+        content.append("")
 
     return "\n".join(content)
 
 
 def render_docx_preview(docx_path):
-    text = extract_docx_full_text(docx_path)
+    raw_text = extract_docx_full_text(docx_path)
 
-    # Highlight placeholders {{ }}
-    text = re.sub(
-        r"{{(.*?)}}",
-        r"<span style='color:#d63384;font-weight:600;'>{{\1}}</span>",
-        text
+    # Escape HTML completely (prevents </div>, <span>, etc.)
+    safe_text = html.escape(raw_text)
+
+    # Highlight placeholders AFTER escaping
+    safe_text = re.sub(
+        r"\{\{(.*?)\}\}",
+        r"<span class='placeholder'>{{\1}}</span>",
+        safe_text
     )
 
-    html = f"""
-    <div style="
-        background:#fff;
-        padding:30px;
-        max-width:750px;
-        height:450px;
-        overflow-y:auto;
-        border-radius:10px;
-        box-shadow:0 10px 25px rgba(0,0,0,0.1);
-        font-family:'Times New Roman', serif;
-        font-size:15px;
-        line-height:1.6;
-        white-space:pre-wrap;
-        border:1px solid #ddd;
-    ">
-        {text}
+    html_preview = f"""
+    <style>
+        .doc-preview {{
+            background: #ffffff;
+            color: #000000;
+            padding: 30px;
+            max-width: 800px;
+            height: 450px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-family: "Times New Roman", serif;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            user-select: text;
+        }}
+
+        .placeholder {{
+            color: #000000;
+            font-weight: 700;
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }}
+    </style>
+
+    <div class="doc-preview">
+        {safe_text}
     </div>
     """
-    st.markdown(html, unsafe_allow_html=True)
+
+    st.markdown(html_preview, unsafe_allow_html=True)
 
 # ======================================================
 # UI
